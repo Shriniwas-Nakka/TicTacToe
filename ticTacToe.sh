@@ -87,9 +87,9 @@ function checkWinner()
 				((columnCount++))
 			fi
 #rightDiagonal
-         if [[ $row == $column && ${board[$row,$column]} == $sign ]]
-         then
-            ((rightDiagonal++))
+			if [[ $row == $column && ${board[$row,$column]} == $sign ]]
+			then
+				((rightDiagonal++))
 			fi
 #left Diagonal
 			if [[ $(($row + $column)) -eq $ROW && ${board[$row,$column]} == $sign ]]
