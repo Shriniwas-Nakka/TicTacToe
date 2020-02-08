@@ -1,4 +1,4 @@
-#!/bin/bash  
+#!/bin/bash 
 #constant
 X=1
 O=1
@@ -100,6 +100,7 @@ function checkWinner()
 			then
 				echo $sign :"Winner"
 				winFlag=$WIN
+				displayBoard
 				exit
 			fi
 		done
@@ -154,6 +155,24 @@ function computerMove()
 		playMove $row $column $computer
 	done
 }
+function  playForWinCondition()
+{
+	for (( rows=0; rows<$ROW; rows++ ))
+	do
+		for (( columns=0; columns<$COLUMN; columns++ ))
+		do
+			if [[ ${board[$rows,$columns]} == "-" ]]
+			then
+				board[$rows,$columns]=$computer
+				checkWinner $computer
+				if [ $winFlag -ne $WIN ]
+				then
+            	board[$rows,$columns]="-"
+				fi
+			fi
+		done
+	done
+}
 function tie()
 {
 	if (( $winFlag != $WIN ))
@@ -172,6 +191,7 @@ do
 		turn=$computer
 	else
 		echo "Computer Played"
+		playForWinCondition
 		computerMove
 		turn=$player
 	fi
@@ -179,5 +199,4 @@ do
 	checkWinner $computer
 	checkWinner $player
 done
-
 tie
