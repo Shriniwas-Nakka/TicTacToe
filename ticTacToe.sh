@@ -167,7 +167,7 @@ function  playForWinCondition()
 				checkWinner $computer
 				if [ $winFlag -ne $WIN ]
 				then
-            	board[$rows,$columns]="-"
+					board[$rows,$columns]="-"
 				fi
 			fi
 		done
