@@ -183,12 +183,12 @@ function  checkForWinCondition(){
 function  blockFromWinning(){
 	local rows
 	local columns
-   for (( rows=0; rows<$ROW; rows++ ))
-   do
-      for (( columns=0; columns<$COLUMN; columns++ ))
-      do
-         if [[ ${board[$rows,$columns]} == "-" ]]
-         then
+	for (( rows=0; rows<$ROW; rows++ ))
+	do
+		for (( columns=0; columns<$COLUMN; columns++ ))
+		do
+			if [[ ${board[$rows,$columns]} == "-" ]]
+			then
 				board[$rows,$columns]=$player
 				checkWinner $player
 				if [ $winFlag -eq $WIN ]
@@ -199,16 +199,16 @@ function  blockFromWinning(){
 					winFlag=0
 					displayWinner
 					break
-            else
+				else
 					board[$rows,$columns]="-"
-            fi
-         fi
-      done
+				fi
+			fi
+		done
 		if [ $block -eq 1 ]
 		then
 			break
 		fi
-   done
+	done
 }
 function tie(){
 	if (( $winFlag != $WIN ))
