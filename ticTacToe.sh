@@ -1,4 +1,4 @@
-#!/bin/bash   
+#!/bin/bash 
 #constant
 X=1
 O=1
@@ -77,48 +77,46 @@ function playMove(){
 	isEmpty $1 $2
 	if [[ $isEmptyFlag == $UNOCCUPIED ]]
 	then
-		board[$row,$column]=$3
+		board[$1,$2]=$3
 		isEmptyFlag=$OCCUPIED
 		madeMoveFlag=$PLAYED
 	fi
-	#checkWinner $3
-	#displayWinner $3
 }
 function checkWinner(){
 	sign=$1
-   leftDiagonal=0
-   rightDiagonal=0
-   for((row=0;row<3;row++))
-   do
-      rowCount=0
-      columnCount=0
-      for((column=0;column<3;column++))
-      do
+	leftDiagonal=0
+	rightDiagonal=0
+	for((row=0;row<3;row++))
+	do
+		rowCount=0
+		columnCount=0
+		for((column=0;column<3;column++))
+		do
 #row check
-         if [[ ${board[$row,$column]} == $sign ]]
-         then
-            ((rowCount++))
+			if [[ ${board[$row,$column]} == $sign ]]
+			then
+				((rowCount++))
          fi
 #col check
-         if [[ ${board[$column,$row]} == $sign ]]
-         then
-            ((columnCount++))
-         fi
+			if [[ ${board[$column,$row]} == $sign ]]
+			then
+				((columnCount++))
+			fi
 #rightDiagonal
-         if [[ $row -eq $column && ${board[$row,$column]} == $sign ]]
-         then
-            ((rightDiagonal++))
-         fi
+			if [[ $row -eq $column && ${board[$row,$column]} == $sign ]]
+			then	
+				((rightDiagonal++))
+			fi
 #left Diagonal
-         if [[ $(($row + $column)) -eq 2 && ${board[$row,$column]} == $sign ]]
-         then
-            ((leftDiagonal++))
-         fi
-         if [[ $rowCount -eq 3 || $columnCount -eq 3 || $rightDiagonal -eq 3 || $leftDiagonal -eq 3 ]]
-         then
-            	winFlag=$WIN
-         fi
-      done
+			if [[ $(($row + $column)) -eq 2 && ${board[$row,$column]} == $sign ]]
+			then
+				((leftDiagonal++))
+			fi
+			if [[ $rowCount -eq 3 || $columnCount -eq 3 || $rightDiagonal -eq 3 || $leftDiagonal -eq 3 ]]
+			then
+				winFlag=$WIN
+			fi
+		done
    done
 }
 
@@ -241,6 +239,10 @@ do
 		if [ $block -ne 1 ]
 		then
 			checkCorner
+		fi
+		if [ $madeMoveFlag -eq 0 ]
+		then
+			playMove 1 1 $computer
 		fi
 		turn=$player
 		block=0
