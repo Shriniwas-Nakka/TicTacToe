@@ -1,15 +1,8 @@
 #!/bin/bash 
 #constant
-X=1
-O=1
 ROW=3
 COLUMN=3
 ALL_CELL_OCCUPIED=9
-WIN=1
-OCCUPIED=0
-UNOCCUPIED=1
-PLAYED=1
-NOT_PLAYED=0
 #variable
 player="O"
 computer="O"
@@ -33,37 +26,40 @@ function initializeBoard(){
 }
 #displayBoard
 function displayBoard(){
+	echo "YOU:"$player
+	echo "OPPONENT:"$computer
 	for((row=0;row<$ROW;row++))
 	do
+		echo "==============="
 		for((column=0;column<$COLUMN;column++))
 		do
-			echo -n ${board[$row,$column]} " "
+			echo -n "|" ${board[$row,$column]} " " 
 		done
 		echo -e
 	done
-	echo "===========END============"
+	echo "=====END========"
 }
 #Assign letter and decide who will play first
 function toss(){
-	if(( $((RANDOM %2)) == $X ))
+	if(( $((RANDOM %2)) == 1 ))
 	then
 		player="X"
 		echo "player will play first"
 	else
 		computer="X"
-		echo "computer will play first"
+		echo "Opponent  will play first"
 	fi
 }
 #check Empty cell
 function isEmpty(){
 	if [[ ${board[$1,$2]} == "-" ]]
 	then
-		isEmptyFlag=$UNOCCUPIED
+		isEmptyFlag=1
 		((move++))
 	fi
 }
 function displayWinner(){
-	if [ $winFlag -eq $WIN ]
+	if [ $winFlag -eq 1 ]
 	then
 		echo  $1 "winner"
 		displayBoard
@@ -75,11 +71,11 @@ function displayWinner(){
 function playMove(){
 #check  is empty
 	isEmpty $1 $2
-	if [[ $isEmptyFlag == $UNOCCUPIED ]]
+	if [[ $isEmptyFlag == 1 ]]
 	then
 		board[$1,$2]=$3
-		isEmptyFlag=$OCCUPIED
-		madeMoveFlag=$PLAYED
+		isEmptyFlag=0
+		madeMoveFlag=1
 	fi
 }
 function checkWinner(){
@@ -96,7 +92,7 @@ function checkWinner(){
 			if [[ ${board[$row,$column]} == $sign ]]
 			then
 				((rowCount++))
-         fi
+			fi
 #col check
 			if [[ ${board[$column,$row]} == $sign ]]
 			then
@@ -114,7 +110,7 @@ function checkWinner(){
 			fi
 			if [[ $rowCount -eq 3 || $columnCount -eq 3 || $rightDiagonal -eq 3 || $leftDiagonal -eq 3 ]]
 			then
-				winFlag=$WIN
+				winFlag=1
 			fi
 		done
    done
@@ -133,8 +129,8 @@ function playFirst(){
 }
 function playerMove()
 {
-	madeMoveFlag=$NOT_PLAYED
-	while (( $madeMoveFlag == $NOT_PLAYED ))
+	madeMoveFlag=0
+	while (( $madeMoveFlag == 0 ))
 	do
 		read -p "provide  row no like 0,1,2" row
 		read -p "provide  col no like 0,1,2" column
@@ -157,7 +153,7 @@ function  checkForWinCondition(){
 			then
 				board[$rows,$columns]=$computer
 				checkWinner $computer
-				if [ $winFlag -ne $WIN ]
+				if [ $winFlag -ne 1 ]
 				then
 					board[$rows,$columns]="-"
 				else
@@ -179,7 +175,7 @@ function  blockFromWinning(){
 			then
 				board[$rows,$columns]=$player
 				checkWinner $player
-				if [ $winFlag -eq $WIN ]
+				if [ $winFlag -eq 1 ]
 				then
 					board[$rows,$columns]=$computer
 					block=1
@@ -194,34 +190,56 @@ function  blockFromWinning(){
 		done
 		if [ $block -eq 1 ]
 		then
+			madeMoveFlag=1
 			break
 		fi
 	done
 }
 function tie(){
-	if (( $winFlag != $WIN ))
+	if (( $winFlag != 1 ))
 	then
 		echo "Tie"
 	fi
 }
 function checkCorner()
 {
-	madeMoveFlag=$NOT_PLAYED
+	madeMoveFlag=0
 	for ((row=0;row<$ROW;row+=2))
 	do
 		for((column=0;column<$COLUMN;column+=2))
 		do
-			if [ $madeMoveFlag -eq $PLAYED ]
+			if [ $madeMoveFlag -eq 1 ]
 			then
 				break	
 			fi		
 				playMove $row $column $computer
 		done
-		if [ $madeMoveFlag -eq $PLAYED ]
+		if [ $madeMoveFlag -eq 1 ]
 		then
 			break 
 		fi 
 	done
+
+}
+function checkSide()
+{
+	madeMoveFlag=0
+	if [ $madeMoveFlag -eq 0 ]
+	then
+		playMove 0 1 $computer
+	fi
+	if [ $madeMoveFlag -eq 0 ]
+	then
+		playMove 1 0 $computer
+	fi
+	if [ $madeMoveFlag -eq 0 ]
+	then
+		playMove 1 2 $computer
+	fi
+	if [ $madeMoveFlag -eq 0 ]
+	then
+		playMove 2 1 $computer
+   fi
 
 }
 initializeBoard
@@ -229,23 +247,37 @@ toss
 playFirst
 while (( $move != $ALL_CELL_OCCUPIED ))
 do
+	madeMoveFlag=0
 	if [[ $turn == $player ]]
 	then
 		playerMove
 		turn=$computer
+		checkWinner $player
+		displayWinner $player
 	else
+		clear
 		checkForWinCondition
 		blockFromWinning
 		if [ $block -ne 1 ]
 		then
 			checkCorner
+			madeMoveFlag=1
 		fi
 		if [ $madeMoveFlag -eq 0 ]
 		then
+			echo "hello"
 			playMove 1 1 $computer
+			madeMoveFlag=1
+		fi
+		if [ $madeMoveFlag -eq 0 ]
+		then
+			echo "hi"
+			checkSide
 		fi
 		turn=$player
 		block=0
+		checkWinner $computer
+		displayWinner $computer
 	fi
 	displayBoard
 done
