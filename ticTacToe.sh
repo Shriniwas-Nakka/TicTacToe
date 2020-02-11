@@ -92,7 +92,7 @@ function checkWinner(){
 			if [[ ${board[$row,$column]} == $sign ]]
 			then
 				((rowCount++))
-         fi
+			fi
 #col check
 			if [[ ${board[$column,$row]} == $sign ]]
 			then
