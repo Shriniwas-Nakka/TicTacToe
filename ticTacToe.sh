@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash  
 #constant
 X=1
 O=1
@@ -77,46 +77,48 @@ function playMove(){
 	isEmpty $1 $2
 	if [[ $isEmptyFlag == $UNOCCUPIED ]]
 	then
-		board[$1,$2]=$3
+		board[$row,$column]=$3
 		isEmptyFlag=$OCCUPIED
 		madeMoveFlag=$PLAYED
 	fi
+	checkWinner $3
+	displayWinner $3
 }
 function checkWinner(){
 	sign=$1
-	leftDiagonal=0
-	rightDiagonal=0
-	for((row=0;row<3;row++))
-	do
-		rowCount=0
-		columnCount=0
-		for((column=0;column<3;column++))
-		do
+   leftDiagonal=0
+   rightDiagonal=0
+   for((row=0;row<3;row++))
+   do
+      rowCount=0
+      columnCount=0
+      for((column=0;column<3;column++))
+      do
 #row check
-			if [[ ${board[$row,$column]} == $sign ]]
-			then
-				((rowCount++))
+         if [[ ${board[$row,$column]} == $sign ]]
+         then
+            ((rowCount++))
          fi
 #col check
-			if [[ ${board[$column,$row]} == $sign ]]
-			then
-				((columnCount++))
-			fi
+         if [[ ${board[$column,$row]} == $sign ]]
+         then
+            ((columnCount++))
+         fi
 #rightDiagonal
-			if [[ $row -eq $column && ${board[$row,$column]} == $sign ]]
-			then	
-				((rightDiagonal++))
-			fi
+         if [[ $row -eq $column && ${board[$row,$column]} == $sign ]]
+         then
+            ((rightDiagonal++))
+         fi
 #left Diagonal
-			if [[ $(($row + $column)) -eq 2 && ${board[$row,$column]} == $sign ]]
-			then
-				((leftDiagonal++))
-			fi
-			if [[ $rowCount -eq 3 || $columnCount -eq 3 || $rightDiagonal -eq 3 || $leftDiagonal -eq 3 ]]
-			then
-				winFlag=$WIN
-			fi
-		done
+         if [[ $(($row + $column)) -eq 2 && ${board[$row,$column]} == $sign ]]
+         then
+            ((leftDiagonal++))
+         fi
+         if [[ $rowCount -eq 3 || $columnCount -eq 3 || $rightDiagonal -eq 3 || $leftDiagonal -eq 3 ]]
+         then
+            	winFlag=$WIN
+         fi
+      done
    done
 }
 
@@ -126,7 +128,7 @@ function playFirst(){
 		playerMove
 		turn=$computer
 	else
-		checkCorner
+		computerMove
 		turn=$player
 	fi
 	displayBoard
@@ -144,6 +146,16 @@ function playerMove()
 			echo "Not a valid row or column"
 		fi
 		playMove $row $column $player
+	done
+}
+function computerMove(){
+
+	madeMoveFlag=$NOT_PLAYED
+	while (( $madeMoveFlag == $NOT_PLAYED ))
+	do
+		row=$((RANDOM%3))
+		column=$((RANDOM%3))
+		playMove $row $column $computer
 	done
 }
 function  checkForWinCondition(){
@@ -177,11 +189,11 @@ function  blockFromWinning(){
       do
          if [[ ${board[$rows,$columns]} == "-" ]]
          then
-				board[$rows,$columns]=$player
-				checkWinner $player
-				if [ $winFlag -eq $WIN ]
-				then
-					board[$rows,$columns]=$computer
+            board[$rows,$columns]=$player
+            checkWinner $player
+            if [ $winFlag -eq $WIN ]
+            then
+               board[$rows,$columns]=$computer
 					block=1
 					((move++))
 					winFlag=0
@@ -204,26 +216,6 @@ function tie(){
 		echo "Tie"
 	fi
 }
-function checkCorner()
-{
-	madeMoveFlag=$NOT_PLAYED
-	for ((row=0;row<$ROW;row+=2))
-	do
-		for((column=0;column<$COLUMN;column+=2))
-		do
-			if [ $madeMoveFlag -eq $PLAYED ]
-			then
-				break	
-			fi		
-				playMove $row $column $computer
-		done
-		if [ $madeMoveFlag -eq $PLAYED ]
-		then
-			break 
-		fi 
-	done
-
-}
 initializeBoard
 toss
 playFirst
@@ -238,11 +230,7 @@ do
 		blockFromWinning
 		if [ $block -ne 1 ]
 		then
-			checkCorner
-		fi
-		if [ $madeMoveFlag -eq 0 ]
-		then
-			playMove 1 1 $computer
+			computerMove 
 		fi
 		turn=$player
 		block=0
