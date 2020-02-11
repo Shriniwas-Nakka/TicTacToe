@@ -1,4 +1,4 @@
-#!/bin/bash  
+#!/bin/bash   
 #constant
 X=1
 O=1
@@ -33,15 +33,19 @@ function initializeBoard(){
 }
 #displayBoard
 function displayBoard(){
+	echo "Player:"$player
+	echo "Computer"$computer
 	for((row=0;row<$ROW;row++))
 	do
+		echo "=============="
 		for((column=0;column<$COLUMN;column++))
 		do
-			echo -n ${board[$row,$column]} " "
+			echo -n "|" ${board[$row,$column]} " "
 		done
-		echo -e
+		echo -e 
+
 	done
-	echo "===========END============"
+	echo   "=============="
 }
 #Assign letter and decide who will play first
 function toss(){
@@ -81,8 +85,6 @@ function playMove(){
 		isEmptyFlag=$OCCUPIED
 		madeMoveFlag=$PLAYED
 	fi
-	checkWinner $3
-	displayWinner $3
 }
 function checkWinner(){
 	sign=$1
@@ -128,7 +130,7 @@ function playFirst(){
 		playerMove
 		turn=$computer
 	else
-		computerMove
+		checkCorner
 		turn=$player
 	fi
 	displayBoard
@@ -146,16 +148,6 @@ function playerMove()
 			echo "Not a valid row or column"
 		fi
 		playMove $row $column $player
-	done
-}
-function computerMove(){
-
-	madeMoveFlag=$NOT_PLAYED
-	while (( $madeMoveFlag == $NOT_PLAYED ))
-	do
-		row=$((RANDOM%3))
-		column=$((RANDOM%3))
-		playMove $row $column $computer
 	done
 }
 function  checkForWinCondition(){
@@ -183,38 +175,58 @@ function  checkForWinCondition(){
 function  blockFromWinning(){
 	local rows
 	local columns
-   for (( rows=0; rows<$ROW; rows++ ))
-   do
-      for (( columns=0; columns<$COLUMN; columns++ ))
-      do
-         if [[ ${board[$rows,$columns]} == "-" ]]
-         then
-            board[$rows,$columns]=$player
-            checkWinner $player
-            if [ $winFlag -eq $WIN ]
-            then
-               board[$rows,$columns]=$computer
+	for (( rows=0; rows<$ROW; rows++ ))
+	do
+		for (( columns=0; columns<$COLUMN; columns++ ))
+		do
+			if [[ ${board[$rows,$columns]} == "-" ]]
+			then
+				board[$rows,$columns]=$player
+				checkWinner $player
+				if [ $winFlag -eq $WIN ]
+				then
+					board[$rows,$columns]=$computer
 					block=1
 					((move++))
 					winFlag=0
 					displayWinner
 					break
-            else
+				else
 					board[$rows,$columns]="-"
-            fi
-         fi
-      done
+				fi
+			fi
+		done
 		if [ $block -eq 1 ]
 		then
 			break
 		fi
-   done
+	done
 }
 function tie(){
 	if (( $winFlag != $WIN ))
 	then
 		echo "Tie"
 	fi
+}
+function checkCorner()
+{
+	madeMoveFlag=$NOT_PLAYED
+	for ((row=0;row<$ROW;row+=2))
+	do
+		for((column=0;column<$COLUMN;column+=2))
+		do
+			if [ $madeMoveFlag -eq $PLAYED ]
+			then
+				break	
+			fi		
+				playMove $row $column $computer
+		done
+		if [ $madeMoveFlag -eq $PLAYED ]
+		then
+			break 
+		fi 
+	done
+
 }
 initializeBoard
 toss
@@ -225,14 +237,18 @@ do
 	then
 		playerMove
 		turn=$computer
+		checkWinner $player
+		displayWinner $player
 	else
 		checkForWinCondition
 		blockFromWinning
 		if [ $block -ne 1 ]
 		then
-			computerMove 
+			checkCorner
 		fi
 		turn=$player
+		checkWinner $player
+		displayWinner $player
 		block=0
 	fi
 	displayBoard
